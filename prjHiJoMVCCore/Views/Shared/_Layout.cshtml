@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> HiJo 嗨揪！</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" rel="stylesheet" />
+    <link href="~/build/css/custom.min.css" rel="stylesheet" />
+
+    <!-- ✅ 加在這裡！允許子頁插入樣式 -->
+    @if (IsSectionDefined("Styles"))
+    {
+        @RenderSection("Styles", required: false)
+    }
+</head>
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+
+            <!-- 左側選單（Sidebar） -->
+            <div class="col-md-3 left_col">
+                <div class="left_col scroll-view">
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a href="@Url.Action("Index", "Home")" class="site_title"><i class="fa-solid fa-people-robbery"></i> <span>HiJo 嗨揪！</span></a>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <div class="profile clearfix">
+                        <div class="profile_pic">
+                            <img src="~/images/avatars/img.jpg" alt="..." class="img-circle profile_img">
+                        </div>
+                        <div class="profile_info">
+                            <span>歡迎,</span>
+                            <h2>B組</h2>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <h3>功能列表</h3>
+                            <ul class="nav side-menu">
+                                <li>
+                                    <a><i class="fa-solid fa-users"></i> 會員管理 <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a href="@Url.Action("list", "Member")">會員總攬</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a><i class="fa-solid fa-rainbow"></i> 活動管理 <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a href="@Url.Action("List", "EventsType")">活動分類</a></li>
+                                        <li><a href="@Url.Action("List", "DiscountType")">活動優惠分類</a></li>
+                                        <li><a href="@Url.Action("List", "Events")">活動</a></li>
+                                        <li><a href="@Url.Action("List", "Batches")">活動梯次</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a><i class="fa-solid fa-file-invoice-dollar"></i> 訂單管理 <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a href="@Url.Action("List", "OrdersStatus")">訂單狀態分類</a></li>
+                                        <li><a href="@Url.Action("List", "PaymentsType")">付款方式分類</a></li>
+                                        <li><a href="@Url.Action("List", "Orders")">訂單</a></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <a><i class="fa-solid fa-heart"></i> 配對管理 <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        
+                                        <li><a href="@Url.Action("List", "Swipes")">會員配對管理</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 上方導覽列（Topbar） -->
+            <div class="top_nav">
+                <div class="nav_menu">
+                    <nav>
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown">
+                                    <img src="~/images/avatars/img.jpg" alt=""> B組
+                                    <span class=" fa fa-angle-down"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <li><a href="#"> 登出</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- 主內容區 -->
+            <div class="right_col" role="main">
+                @RenderBody()
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JS 引入 -->
+    <script src="~/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="~/vendors/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/build/js/custom.min.js"></script>
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

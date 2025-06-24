@@ -1,0 +1,46 @@
+﻿@model prjHiJoMVCCore.Models.Swipe
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>刪除頁面</h1>
+
+<h3>在這裡你可扮演月老</h3>
+<div>
+    <h4>Swipe</h4>
+    <hr />
+    <dl class="row">
+        
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Swiper)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Swiper.Id)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Target)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Target.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SwipesAction)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SwipesAction)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreaTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CreaTime)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="List" class="btn btn-secondary">取消並返回</a>
+    </form>
+</div>

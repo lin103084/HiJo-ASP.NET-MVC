@@ -1,0 +1,27 @@
+﻿@model prjHiJoMVCCore.ViewModels.CEventFormViewModel
+
+<div class="mb-3">
+    <label class="form-label">其他圖片（可多選）</label>
+
+    <!-- 顯示資料庫中既有的圖片 -->
+    @if (Model.ExistingPhotos?.Any(p => !p.IsCover) == true)
+    {
+        <div class="mb-3 d-flex flex-wrap gap-3" id="existingExtraPhotos">
+            @foreach (var photo in Model.ExistingPhotos.Where(p => !p.IsCover).OrderBy(p => p.SortOrder))
+            {
+                <div class="position-relative d-inline-block">
+                    <img src="~/images/eventPhotos/@photo.Photo" class="img-thumbnail" style="width: 150px;" />
+                    <input type="hidden" name="RemainingPhotoIds" value="@photo.EventPhotoId" />
+                    <button type="button" class="btn btn-light btn-sm rounded-circle position-absolute top-0 end-0 m-1"
+                            onclick="this.closest('.d-inline-block').remove()">
+                        <i class="fa fa-times text-danger"></i>
+                    </button>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Dropzone 上傳區塊 -->
+    <div id="extraPhotoDropzone" class="dropzone"></div>
+    <input type="file" name="ExtraPhotos" id="extraPhotosInput" multiple hidden />
+</div>

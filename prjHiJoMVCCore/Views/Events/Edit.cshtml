@@ -1,0 +1,133 @@
+﻿@model prjHiJoMVCCore.ViewModels.CEventFormViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>編輯活動</h2>
+
+<form asp-action="Edit" enctype="multipart/form-data" method="post">
+    @Html.AntiForgeryToken()
+    @await Html.PartialAsync("_EventFormPartial", Model)
+
+    <!-- Dropzone -->
+    @await Html.PartialAsync("_ExtraPhotosPartial", Model)
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">儲存變更</button>
+        <a href="javascript:;" class="btn btn-danger" onclick="confirmDelete(@Model.EventId, '@Model.Name')">刪除</a>
+        <a asp-action="List" class="btn btn-secondary ms-2">取消</a>
+    </div>
+</form>
+
+@section Styles {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" rel="stylesheet" />
+    <style>
+        .dropzone {
+            border: 2px dashed #ccc;
+            padding: 30px;
+            background-color: #fafafa;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .dz-message {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* 移除預設進度條樣式 */
+        .dz-progress,
+        .dz-error-mark,
+        .dz-success-mark,
+        .dz-details {
+            display: none !important;
+        }
+
+        #extraPhotoDropzone .img-thumbnail {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+}
+
+
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+
+    <script>
+        // 停用 Dropzone 自動抓取 .dropzone
+        Dropzone.autoDiscover = false;
+
+        // Dropzone for extra photos（你原本的上傳區）
+        const dz = new Dropzone("#extraPhotoDropzone", {
+            url: "/fake-upload",
+            autoProcessQueue: false,
+            uploadMultiple: true,
+            parallelUploads: 10,
+            maxFilesize: 5,
+            acceptedFiles: "image/*",
+            thumbnailWidth: null,
+            thumbnailHeight: null,
+            dictDefaultMessage: "拖拉圖片到這裡，或點擊選擇圖片上傳",
+            previewTemplate: `
+                        <div class="dz-preview dz-file-preview position-relative d-inline-block m-2" style="width: 150px;">
+                            <img data-dz-thumbnail class="img-thumbnail" style="width: 100%; height: auto;" />
+                            <button type="button" class="btn btn-light btn-sm rounded-circle position-absolute top-0 end-0 m-1" onclick="removePreviewFile(this)">
+                                <i class="fa fa-times text-danger"></i>
+                            </button>
+                        </div>`
+        });
+
+        // Dropzone 新增圖片時觸發 input
+        const dzWrapper = document.querySelector("#extraPhotoDropzone");
+        const placeholderDiv = document.createElement("div");
+        placeholderDiv.className = "dz-preview d-inline-block text-center align-top m-2";
+        placeholderDiv.style.width = "150px";
+        placeholderDiv.innerHTML = `
+                    <div class="img-thumbnail d-flex flex-column justify-content-center align-items-center" style="height: 120px; cursor: pointer;">
+                        <i class="fa fa-plus fa-2x text-secondary mb-2"></i>
+                        <small class="text-muted">新增圖片</small>
+                    </div>`;
+        placeholderDiv.addEventListener("click", () => {
+            document.querySelector("#extraPhotosInput").click();
+        });
+        dzWrapper.appendChild(placeholderDiv);
+
+        // Dropzone 將圖片加入 input
+        document.querySelector("form").addEventListener("submit", function () {
+            const dt = new DataTransfer();
+            dz.files.forEach(file => dt.items.add(file));
+            document.querySelector("#extraPhotosInput").files = dt.files;
+        });
+
+        document.querySelector("#extraPhotosInput").addEventListener("change", function (e) {
+            const files = e.target.files;
+            for (let i = 0; i < files.length; i++) {
+                dz.emit("addedfile", files[i]);
+                dz.emit("thumbnail", files[i], URL.createObjectURL(files[i]));
+                dz.files.push(files[i]);
+            }
+            e.target.value = "";
+        });
+
+        window.removePreviewFile = function (btn) {
+            const previewElement = btn.closest(".dz-preview");
+            if (!previewElement) return;
+
+            const fileToRemove = dz.files.find(f => f.previewElement === previewElement);
+            if (fileToRemove) {
+                dz.removeFile(fileToRemove); // 正確移除 preview 和 dz.files 裡的項目
+            }
+        };
+
+    </script>
+}
+
+

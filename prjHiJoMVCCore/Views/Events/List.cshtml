@@ -1,0 +1,171 @@
+﻿@model prjHiJoMVCCore.ViewModels.CEventQueryViewModel
+
+<h2>活動管理</h2>
+
+<form id="searchForm" class="mb-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-10">
+                關鍵字：
+                @Html.TextBoxFor(m => m.txtKeyword, new { @class = "form-control d-inline-block w-auto", placeholder = "輸入活動名稱" })
+
+                活動分類：
+                @Html.DropDownListFor(m => m.selectedEventType, Model.eventTypeOptions, "--請選擇--", new { @class = "form-select d-inline-block w-auto" })
+
+                城市：
+                @Html.DropDownListFor(m => m.selectedCity, Model.cityOptions, "--請選擇--", new { @class = "form-select d-inline-block w-auto" })
+
+                <button type="submit" class="btn btn-primary">搜尋</button>
+            </div>
+            <div class="col-2">
+                <a asp-action="Create" class="btn btn-success">新增</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>活動名稱</th>
+            <th>分類</th>
+            <th>城市</th>
+            <th>刪除</th>
+        </tr>
+    </thead>
+    <tbody id="resultArea">
+        <!-- AJAX -->
+    </tbody>
+</table>
+
+<nav>
+    <ul id="pagination" class="pagination justify-content-center mt-3"></ul>
+</nav>
+
+@section Styles{
+    <style>
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+    </style>
+
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // 將查詢包成一個方法
+        async function searchEvents(page = 1) {
+            const form = document.querySelector("#searchForm");
+            const params = new URLSearchParams(new FormData(form));
+            params.append("page", page); // ✅ 傳送頁碼
+
+            const url = "@Url.Content("~/ApiEvents/Search")" + "?" + params.toString();
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                alert("查詢失敗");
+                return;
+            }
+
+            const result = await response.json();
+            const tbody = document.querySelector("#resultArea");
+            tbody.innerHTML = "";
+
+            for (const item of result.events) {
+                const row = document.createElement("tr");
+                const editUrl = '@Url.Action("Edit", "Events")';
+                row.innerHTML = `
+                    <td><a href="${editUrl}/${item.eventId}">${item.eventName}</a></td>
+                    <td>${item.eventTypeName}</td>
+                    <td>${item.city}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm btn-delete"
+                            data-id="${item.eventId}" data-name="${item.eventName}">
+                            刪除
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+
+            // 綁定刪除事件
+            tbody.querySelectorAll(".btn-delete").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const id = this.dataset.id;
+                    const name = this.dataset.name;
+                    confirmDelete(id, name, () => {
+                        searchEvents(page); // ✅ 繼續保留目前頁
+                    });
+                });
+            });
+
+            // ✅ 動態產生分頁按鈕
+            const pagination = document.querySelector("#pagination");
+            pagination.innerHTML = "";
+
+            const totalPages = Math.ceil(result.totalCount / 10);
+            const maxPageButtons = 5; // 最多顯示幾個數字頁碼
+            const half = Math.floor(maxPageButtons / 2);
+            let startPage = Math.max(1, page - half);
+            let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+            if (endPage - startPage < maxPageButtons - 1) {
+                startPage = Math.max(1, endPage - maxPageButtons + 1);
+            }
+
+            function createPageItem(label, targetPage, disabled = false, active = false) {
+                const li = document.createElement("li");
+                li.className = "page-item";
+                if (disabled) li.classList.add("disabled");
+                if (active) li.classList.add("active");
+
+                const a = document.createElement("a");
+                a.className = "page-link";
+                a.href = "#";
+                a.innerHTML = label;
+                a.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    if (!disabled && !active) searchEvents(targetPage);
+                });
+
+                li.appendChild(a);
+                return li;
+            }
+
+            // << 最前頁
+            pagination.appendChild(createPageItem("&laquo;", 1, page === 1));
+
+            // < 上一頁
+            pagination.appendChild(createPageItem("&lsaquo;", page - 1, page === 1));
+
+            // 中間的頁碼數字
+            for (let i = startPage; i <= endPage; i++) {
+                pagination.appendChild(createPageItem(i, i, false, page === i));
+            }
+
+            // > 下一頁
+            pagination.appendChild(createPageItem("&rsaquo;", page + 1, page === totalPages));
+
+            // >> 最後頁
+            pagination.appendChild(createPageItem("&raquo;", totalPages, page === totalPages));
+
+    }
+
+
+
+
+        // 頁面載入時綁定搜尋
+        document.querySelector("#searchForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            searchEvents(1);
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            searchEvents(1);
+        });
+    </script>
+}

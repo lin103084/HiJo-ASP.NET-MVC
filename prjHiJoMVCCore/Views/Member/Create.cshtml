@@ -1,0 +1,74 @@
+﻿
+@model prjHiJoMVCCore.ViewModels.CMemberFormViewModel
+@{
+    ViewData["Title"] = "新增會員";
+}
+
+<h2>新增會員</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label asp-for="UserName" class="form-label"></label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" id="email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+        <div id="emailFeedback" class="text-danger mt-1"></div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AvatarFile" class="form-label">檔案上傳</label>
+        <input asp-for="AvatarFile" type="file" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SelectedRoleIds" class="form-label">角色類別</label>
+        <select asp-for="SelectedRoleIds" asp-items="@(new MultiSelectList(Model.RoleOptions, "Id", "Name"))" class="form-select" multiple></select>
+    </div>
+
+    <button type="submit" class="btn btn-success">儲存</button>
+    <a asp-action="List" class="btn btn-secondary">返回列表</a>
+</form>
+
+@section Scripts {
+    <script>
+        const emailInput = document.getElementById('email');
+        const feedbackDiv = document.getElementById('emailFeedback');
+        let debounceTimer = null;
+
+        emailInput.addEventListener('input', () => {
+            const email = emailInput.value;
+            clearTimeout(debounceTimer);
+            if (!email) {
+                feedbackDiv.textContent = "";
+                return;
+            }
+
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/Member/CheckEmailExists?email=${encodeURIComponent(email)}`);
+                    const data = await response.json();
+
+                    if (data.exists) {
+                        feedbackDiv.textContent = "此 Email 已被註冊";
+                        emailInput.classList.add('is-invalid');
+                    } else {
+                        feedbackDiv.textContent = "";
+                        emailInput.classList.remove('is-invalid');
+                    }
+                } catch {
+                    feedbackDiv.textContent = "驗證失敗，請稍後再試";
+                }
+            }, 500);
+        });
+    </script>
+    <style>
+        .is-invalid {
+            border-color: #dc3545;
+        }
+    </style>
+}

@@ -1,0 +1,23 @@
+﻿@model prjHiJoMVCCore.ViewModels.CMemberFormViewModel
+
+@{
+    ViewData["Title"] = "確認刪除會員";
+}
+
+<h2>刪除會員確認</h2>
+
+<div class="alert alert-warning">
+    確定要刪除 <strong>@Model.UserName</strong> 嗎？此操作將無法復原。
+</div>
+
+<div class="mb-3">
+    <p><strong>Email：</strong>@Model.Email</p>
+    <p><strong>城市：</strong>@Model.CityOptions.FirstOrDefault(c => c.CityId == Model.CityId)?.CityName</p>
+    <p><strong>地區：</strong>@Model.DistrictOptions.FirstOrDefault(d => d.DistrictId == Model.DistrictId)?.DistrictName</p>
+</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">確定刪除</button>
+    <a asp-action="List" class="btn btn-secondary">取消</a>
+</form>

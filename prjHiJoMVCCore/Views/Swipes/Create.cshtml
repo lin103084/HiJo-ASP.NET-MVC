@@ -1,0 +1,45 @@
+﻿@model prjHiJoMVCCore.ViewModels.CSwipeCreateViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>新增配對狀態</h1>
+
+<h4>請輸入資訊</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="form-group">
+                <label asp-for="swiperID" class="control-label"></label>
+                <input asp-for="swiperID" class="form-control" />
+                <span asp-validation-for="swiperID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="targetID" class="control-label"></label>
+                <input asp-for="targetID" class="form-control" />
+                <span asp-validation-for="targetID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="swipesAction" class="control-label"></label>
+                <input asp-for="swipesAction" class="form-control" />
+                <span asp-validation-for="swipesAction" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="List" class="btn btn-secondary">取消並返回</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,29 @@
+﻿@model prjHiJoMVCCore.ViewModels.CEventFormViewModel
+
+<div class="mb-3">
+    <label class="form-label">封面圖片</label>
+
+    <div id="coverPreview" class="position-relative d-inline-block">
+        <img id="coverImgPreview"
+             src="@Url.Content(Model.ExistingPhotos?.FirstOrDefault(p => p.IsCover) != null
+                     ? "~/images/eventPhotos/" + Model.ExistingPhotos.First(p => p.IsCover).Photo
+                     : "~/images/placeholder.png")"
+             class="img-thumbnail"
+             style="width: 200px;" />
+
+        <button type="button"
+                id="coverRemoveBtn"
+                class="btn btn-light btn-sm rounded-circle position-absolute top-0 end-0 m-1 @(Model.ExistingPhotos?.Any(p => p.IsCover) == true ? "" : "d-none")"
+                onclick="removeCoverImage()">
+            <i class="fa fa-times text-danger"></i>
+        </button>
+    </div>
+
+    <input asp-for="CoverPhotoDeleted" type="hidden" value="false" />
+    <input asp-for="CoverPhoto" type="file" class="form-control mt-2"
+           id="CoverPhoto"
+           onchange="previewImage(this, 'coverImgPreview', true)" />
+
+    <span asp-validation-for="CoverPhoto" class="text-danger"></span>
+
+</div>

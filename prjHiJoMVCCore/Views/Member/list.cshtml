@@ -1,0 +1,248 @@
+﻿@model prjHiJoMVCCore.ViewModels.CMemberListViewModel
+
+@{
+	ViewData["Title"] = "會員列表";
+}
+<!--引入自訂的css-->
+@section Styles {
+	<link rel="stylesheet" href="~/css/member-list.css" asp-append-version="true" />
+}
+
+<h2>會員列表</h2>
+
+<div class="mb-3 text-end">
+	<a asp-action="Create" class="btn btn-success">
+		<i class="bi bi-person-plus"></i> 新增會員
+	</a>
+</div>
+
+<!-- 篩選相關-->
+<form asp-action="List" method="get" class="form-inline mb-3 d-flex gap-2 align-items-center flex-wrap">
+	<div class="row g-2">
+		<div class="col-3">
+			<input type="text" name="Keyword" value="@Model.Keyword" class="form-control" placeholder="搜尋 ID / 名稱 / Email" />
+			<button type="submit" class="btn btn-primary">搜尋</button>
+		</>
+		</div>
+
+		<div class="col-3">
+	<!-- 頁面呈現數量-->
+	<select name="PageSize" class="form-select" onchange="this.form.submit()">
+		<!--  onchange  = 當選擇的值一改變 就自動觸發整個 <form> 的提交，重新送出查詢請求（GET）-->
+		@foreach (var size in new[] { 10, 20, 30 })
+		{
+			<option value="@size" selected="@(Model.PageSize == size ? "selected" : null)">每頁 @size 筆</option>
+		}
+	</select>
+		</div>
+			<div class="col-3">
+	<!--顯示城市-->
+	<select id="citySelect" name="CityId" class="form-select">
+		<option value="">-- 所有城市 --</option>
+		@foreach (var city in Model.CityOptions)
+		{
+			if (city.CityId == Model.CityId)
+			{
+				<option value="@city.CityId" selected>@city.CityName</option>  <!--selected 畫面一載入預設選-->
+			}
+			else
+			{
+				<option value="@city.CityId">@city.CityName</option>
+			}
+		}
+	</select>
+		</div>
+				<div class="col-3">
+	<!--顯示地區-->
+	<select id="districtSelect" name="DistrictId" class="form-select" onchange="this.form.submit()">
+		<option value="">-- 所有地區 --</option>
+		@foreach (var district in Model.DistrictOptions.Where(d => !Model.CityId.HasValue || d.ParentCityId == Model.CityId))
+		{
+			if (district.DistrictId == Model.DistrictId)
+			{
+				<option value="@district.DistrictId" selected>@district.DistrictName</option>
+			}
+			else
+			{
+				<option value="@district.DistrictId">@district.DistrictName</option>
+			}
+		}
+	</select>
+		</div>
+
+					<div class="col-3">
+	<select name="Sex" class="form-select" onchange="this.form.submit()">
+		<option value="">-- 所有性別 --</option>
+		<option value="M" selected="@(Model.Sex == "M" ? "selected" : null)">男</option>
+		<option value="F" selected="@(Model.Sex == "F" ? "selected" : null)">女</option>
+	</select>
+		</div>
+						<div class="col-3">
+	<select name="RoleId" class="form-select" onchange="this.form.submit()">
+		<option value="">-- 所有身分 --</option>
+		@foreach (var role in Model.RoleOptions)
+		{
+			<option value="@role.Id" selected="@(Model.RoleId == role.Id ? "selected" : null)">
+				@role.Name
+			</option>
+		}
+	</select>
+		</div>
+							<div class="col-3">
+	<select name="IsActive" class="form-select" onchange="this.form.submit()">
+		<option value="">-- 啟用狀態 --</option>
+		<option value="true" selected="@(Model.IsActive == true ? "selected" : null)">啟用</option>
+		<option value="false" selected="@(Model.IsActive == false ? "selected" : null)">未啟用</option>
+	</select>
+		</div>
+								<div class="col-3">
+	<select name="IsVerified" class="form-select" onchange="this.form.submit()">
+		<option value="">-- 驗證狀態 --</option>
+		<option value="true" selected="@(Model.IsVerified == true ? "selected" : null)">已驗證</option>
+		<option value="false" selected="@(Model.IsVerified == false ? "selected" : null)">未驗證</option>
+	</select>
+		</div>
+
+
+	
+</form>
+
+
+
+
+<!-- 表格開始-->
+<table class="table table-sm">
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>使用者名稱</th>
+			<th>Email</th>
+			<th>生日</th>
+			<th>性別</th>
+			<th>簡介</th>
+			<th>城市</th>
+			<th>地區</th>
+			<th>啟用</th>
+			<th>驗證</th>
+			<th>身分權限</th>
+			<th>最後上線</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model.Members)
+		{
+			<tr>
+				<td>@item.Id</td>
+				<td>@item.UserName</td>
+				<td>@item.Email</td>
+				<td>@item.Birthday</td>
+				<td>@(item.Sex=="M"? "男":"女")</td>
+				<td>@item.Resume</td>
+				<td>@item.CityName</td>
+				<td>@item.DistrictName</td>
+				<td>@(item.IsActive == true ? "啟用" : "未啟用")</td>
+				<td>@(item.IsVerified == true ? "已驗證" : "未驗證")</td>
+				<td>@item.RoleName</td>
+				<td>@item.LastOnline?.ToString("yyyy-MM-dd HH:mm")</td>
+				<td>
+					@Html.ActionLink("Edit", "Edit", new { id = item.Id }) |					
+					@Html.ActionLink("Delete", "Delete", new { id = item.Id })
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+@{
+	int startPage = Math.Max(1, Model.Page - 2);
+	int endPage = Math.Min(Model.TotalPages, Model.Page + 2);
+}
+
+
+
+
+
+<!--分頁-->
+<div class="d-flex justify-content-center mt-3">
+	<nav>
+		<ul class="pagination pagination-sm">
+			<li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+				<a class="page-link" asp-action="List"
+				   asp-route-Page="@(Model.Page - 1)"
+				   asp-route-Keyword="@Model.Keyword"
+				   asp-route-PageSize="@Model.PageSize"
+				   asp-route-CityId="@Model.CityId"
+				   asp-route-DistrictId="@Model.DistrictId"
+				   asp-route-Sex="@Model.Sex"
+				   asp-route-IsActive="@Model.IsActive"
+				   asp-route-IsVerified="@Model.IsVerified">
+					&laquo;
+				</a>
+			</li>
+
+			@for (int i = startPage; i <= endPage; i++)
+			{
+				<li class="page-item @(i == Model.Page ? "active" : "")">
+					<a class="page-link" asp-action="List"
+					   asp-route-Page="@i"
+					   asp-route-Keyword="@Model.Keyword"
+					   asp-route-PageSize="@Model.PageSize"
+					   asp-route-CityId="@Model.CityId"
+					   asp-route-DistrictId="@Model.DistrictId"
+					   asp-route-Sex="@Model.Sex"
+					   asp-route-IsActive="@Model.IsActive"
+					   asp-route-IsVerified="@Model.IsVerified">
+						@i
+					</a>
+				</li>
+			}
+
+			<li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+				<a class="page-link" asp-action="List"
+				   asp-route-Page="@(Model.Page + 1)"
+				   asp-route-Keyword="@Model.Keyword"
+				   asp-route-PageSize="@Model.PageSize"
+				   asp-route-CityId="@Model.CityId"
+				   asp-route-DistrictId="@Model.DistrictId"
+				   asp-route-Sex="@Model.Sex"
+				   asp-route-IsActive="@Model.IsActive"
+				   asp-route-IsVerified="@Model.IsVerified">
+					&raquo;
+				</a>
+			</li>
+		</ul>
+	</nav>
+</div>
+
+
+
+
+
+
+@section Scripts {
+	<script>
+			let citySelect = document.querySelector('#citySelect');
+			let  districtSelect = document.querySelector('#districtSelect');
+
+			//當City改變時
+			citySelect.addEventListener('change', async function () {
+					let  cityId = this.value;	//取得當前cityID
+					
+					// 清空地區下拉
+					districtSelect.innerHTML = '<option value="">-- 所有地區 --</option>';
+					if (!cityId) return; //沒有cityId就return
+
+					let  response = await fetch(`/api/ApiLocation/GetDistrictsByCityId/${cityId}`);
+					if (!response.ok) return; //沒有cityId就return
+
+					let  datas = await response.json();					
+					let resultArr = datas.map((item)=>{
+						return `
+						<option value="${item.districtId}">${item.districtName}</option>
+						`						
+					})
+					districtSelect.innerHTML = resultArr.join("");
+			
+		});
+	</script>
+}

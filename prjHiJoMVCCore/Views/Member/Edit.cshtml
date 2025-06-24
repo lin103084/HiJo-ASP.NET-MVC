@@ -1,0 +1,111 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model prjHiJoMVCCore.ViewModels.CMemberFormViewModel
+
+@{
+    ViewData["Title"] = Model.Id.HasValue ? "編輯會員" : "新增會員";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="@(Model.Id.HasValue ? "Edit" : "Create")" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="UserName" class="form-label"></label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="row g-2">
+        <div class="col-md-4">
+            <label asp-for="Sex" class="form-label">性別</label>
+            <select asp-for="Sex" class="form-select">
+                <option value="">--</option>
+                <option value="M" selected="@(Model.Sex == "M")">男</option>
+                <option value="F" selected="@(Model.Sex == "F")">女</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Birthday" class="form-label">生日</label>
+            <input asp-for="Birthday" class="form-control" />
+        </div>
+    </div>
+
+    <div class="row g-2 mt-2">
+        <div class="col-md-6">
+            <label asp-for="CityId" class="form-label">城市</label>
+            <select asp-for="CityId" asp-items="@(new SelectList(Model.CityOptions, "CityId", "CityName"))" class="form-select"></select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="DistrictId" class="form-label">地區</label>
+            <select asp-for="DistrictId" asp-items="@(new SelectList(Model.DistrictOptions, "DistrictId", "DistrictName"))" class="form-select"></select>
+        </div>
+    </div>
+
+    <div class="mb-3 mt-2">
+        <label asp-for="Resume" class="form-label">自我介紹</label>
+        <textarea asp-for="Resume" class="form-control"></textarea>
+    </div>
+
+    <div class="row g-2">
+        <div class="col-md-4 form-check">
+            <input asp-for="IsActive" class="form-check-input" />
+            <label asp-for="IsActive" class="form-check-label"></label>
+        </div>
+        <div class="col-md-4 form-check">
+            <input asp-for="IsVerified" class="form-check-input" />
+            <label asp-for="IsVerified" class="form-check-label"></label>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.AvatarPath))
+    {
+        <div class="mb-3 mt-3">
+            <label class="form-label">照片</label><br />
+            <img src="@Model.AvatarPath" width="180" class="img-thumbnail" />
+        </div>
+    }
+
+    <div class="mb-3">
+        <label asp-for="AvatarFile" class="form-label">檔案上傳</label>
+        <input asp-for="AvatarFile" type="file" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SelectedRoleIds" class="form-label">角色</label>
+        <select asp-for="SelectedRoleIds"
+                asp-items="@(new MultiSelectList(Model.RoleOptions, "Id", "Name", Model.SelectedRoleIds))"
+                class="form-select" multiple>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">儲存</button>
+    <a asp-action="List" class="btn btn-secondary">取消</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const citySelect = document.querySelector("#CityId");
+        const districtSelect = document.querySelector("#DistrictId");
+
+        citySelect?.addEventListener("change", async function () {
+            const cityId = this.value;
+            districtSelect.innerHTML = '<option value="">-- 所有地區 --</option>';
+            if (!cityId) return;
+
+            const response = await fetch(`/api/ApiLocation/GetDistrictsByCityId/${cityId}`);
+            if (!response.ok) return;
+
+            const districts = await response.json();
+            const html = districts.map(d => `<option value="${d.districtId}">${d.districtName}</option>`).join("");
+            districtSelect.innerHTML += html;
+        });
+    </script>
+}
